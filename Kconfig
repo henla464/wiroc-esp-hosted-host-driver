@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config ESPRESSIF_ESPHOSTED
+	tristate "ESPHosted driver for Wifi and BT"
+	help
+	  This module provides Wifi and BT driver using a ESP32C5 as coprocessor
+
+	  Say Y or M here to enable this Wifi/BT driver module.

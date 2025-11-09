@@ -5,7 +5,7 @@ esphosted-objs := main.o spi/esp_spi.o esp_bt.o esp_cmd.o esp_utils.o esp_cfg802
 esp32_spi-y := $(esphosted-objs)
 
 # Conditional compilation: built-in (y) or module (m) via CONFIG_ESPHOSTED
-obj-$(CONFIG_ESPHOSTED) := esp32_spi.o
+obj-$(CONFIG_ESPRESSIF_ESPHOSTED) := esp32_spi.o
 
 # Find the .h files
 ccflags-y += -I$(src)/include -I$(src)/spi
