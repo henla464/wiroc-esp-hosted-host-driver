@@ -497,7 +497,6 @@ static int create_cmd_wq(struct esp_adapter *adapter)
 static void destroy_cmd_wq(struct esp_adapter *adapter)
 {
 	if (adapter->cmd_wq) {
-		//remove_proc_entry("esp32_spi", NULL);
 		cancel_work_sync(&adapter->cmd_work);
 		destroy_workqueue(adapter->cmd_wq);
 		adapter->cmd_wq = NULL;

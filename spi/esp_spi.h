@@ -13,8 +13,7 @@
 #define SPI_IRQ                 gpio_to_irq(HANDSHAKE_PIN)
 #define SPI_DATA_READY_PIN      6
 #define SPI_DATA_READY_IRQ      gpio_to_irq(SPI_DATA_READY_PIN)
-#define SPI_BUF_SIZE            64
-// previous 1600
+#define SPI_BUF_SIZE            1600
 
 enum spi_flags_e {
 	ESP_SPI_BUS_CLAIMED,

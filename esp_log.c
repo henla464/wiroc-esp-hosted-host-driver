@@ -35,21 +35,15 @@ static char *get_kern_log_level(int level)
 
 void esp_logger(int level, const char *function, const char* fmt, ...)
 {
-	function = function ? function : "unknown";
-	fmt = fmt ? fmt : "invalid fmt";
-
 	char *kern_level;
 	struct va_format vaf;
 	va_list args;
-
-
 
 	if (level > log_level)
 		return;
 
 	kern_level = get_kern_log_level(level);
-	kern_level = kern_level ? kern_level : "";
-	
+
 	va_start(args, fmt);
 
 	vaf.fmt = fmt;
