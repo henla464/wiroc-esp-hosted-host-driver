@@ -11,7 +11,7 @@
 
 #define HANDSHAKE_PIN           203
 #define SPI_IRQ                 gpio_to_irq(HANDSHAKE_PIN)
-#define SPI_DATA_READY_PIN      6
+#define SPI_DATA_READY_PIN      18
 #define SPI_DATA_READY_IRQ      gpio_to_irq(SPI_DATA_READY_PIN)
 #define SPI_BUF_SIZE            1600
 

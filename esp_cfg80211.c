@@ -340,6 +340,7 @@ struct wireless_dev *esp_cfg80211_add_iface(struct wiphy *wiphy,
 
 
 	set_bit(ESP_NETWORK_UP, &esp_wdev->priv_flags);
+	set_bit(ESP_INTERFACE_INITIALIZED, &esp_wdev->priv_flags);
 
 	esp_wdev->nb.notifier_call = esp_inetaddr_event;
 	register_inetaddr_notifier(&esp_wdev->nb);
@@ -738,6 +739,9 @@ static void esp_cfg80211_set_wakeup(struct wiphy *wiphy,
 
 static int esp_cfg80211_set_tx_power(struct wiphy *wiphy,
 				     struct wireless_dev *wdev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
+				     int radio_idx,
+#endif
 				     enum nl80211_tx_power_setting type, int mbm)
 {
 	struct esp_adapter *adapter = esp_get_adapter();
@@ -815,6 +819,9 @@ static int esp_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev
 
 static int esp_cfg80211_get_tx_power(struct wiphy *wiphy,
 				     struct wireless_dev *wdev,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
+				     int radio_idx,
+#endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0))
 				     unsigned int link_id,
 #endif
@@ -842,7 +849,11 @@ static int esp_cfg80211_get_tx_power(struct wiphy *wiphy,
 	return 0;
 }
 
-static int esp_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed)
+static int esp_cfg80211_set_wiphy_params(struct wiphy *wiphy,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0))
+					 int radio_idx,
+#endif
+					 u32 changed)
 {
 	esp_dbg("\n");
 	return 0;
@@ -1237,7 +1248,8 @@ int esp_add_wiphy(struct esp_adapter *adapter)
 	if (adapter->chipset == ESP_FIRMWARE_CHIP_ESP32C3 ||
 	    adapter->chipset == ESP_FIRMWARE_CHIP_ESP32S3 ||
 	    adapter->chipset == ESP_FIRMWARE_CHIP_ESP32C5 ||
-	    adapter->chipset == ESP_FIRMWARE_CHIP_ESP32C6) {
+	    adapter->chipset == ESP_FIRMWARE_CHIP_ESP32C6 ||
+	    adapter->chipset == ESP_FIRMWARE_CHIP_ESP32C61) {
 		wiphy->cipher_suites = esp_cipher_suites_new;
 		wiphy->n_cipher_suites = ARRAY_SIZE(esp_cipher_suites_new);
 	} else {

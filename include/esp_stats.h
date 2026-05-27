@@ -14,8 +14,7 @@
 
 #if TEST_RAW_TP
 
-#define TEST_RAW_TP__BUF_SIZE    1588
-// prev 1588 1460
+#define TEST_RAW_TP__BUF_SIZE    1460
 
 #define ESP_TEST_RAW_TP__RX      0
 #define ESP_TEST_RAW_TP__TX      1
