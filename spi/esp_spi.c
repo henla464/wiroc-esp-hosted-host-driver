@@ -78,6 +78,7 @@ static void close_data_path(void)
 static irqreturn_t spi_data_ready_interrupt_handler(int irq, void *dev)
 {
 	/* ESP peripheral has queued buffer for transmission */
+	esp_verbose("DataReady interrupt: ESP has data\n");
 	if (spi_context.spi_workqueue)
 		queue_work(spi_context.spi_workqueue, &spi_context.spi_work);
 
@@ -87,6 +88,7 @@ static irqreturn_t spi_data_ready_interrupt_handler(int irq, void *dev)
 static irqreturn_t spi_interrupt_handler(int irq, void *dev)
 {
 	/* ESP peripheral is ready for next SPI transaction */
+	esp_verbose("Handshake: ESP ready for transfer\n");
 	if (spi_context.spi_workqueue)
 		queue_work(spi_context.spi_workqueue, &spi_context.spi_work);
 
@@ -385,6 +387,7 @@ static void esp_spi_work(struct work_struct *work)
 		dev_kfree_skb(rx_skb);
 		dev_kfree_skb(tx_skb);
 	} else {
+		esp_hex_dump_verbose("SPI RECV: ", rx_buf, 32);
 		/* Free rx_skb if received data is not valid */
 		if (process_rx_buf(rx_skb))
 			dev_kfree_skb(rx_skb);
