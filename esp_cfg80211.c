@@ -455,6 +455,43 @@ static int esp_cfg80211_scan(struct wiphy *wiphy,
 		return -EINVAL;
 	}
 
+	/*
+	 * Throttle background scans (no SSID specified).
+	 * Periodic scans disrupt data traffic; skip them when
+	 * the signal is strong enough that roaming is unnecessary.
+	 *
+	 *  - RSSI > -60 dBm: block bgscan (no roam needed)
+	 *  - Below threshold: allow, max 1 per 120s
+	 *  - Scans with SSID: always pass through
+	 */
+	{
+		bool is_bgscan;
+
+		is_bgscan = (!request->ssids || !request->n_ssids ||
+		             !request->ssids[0].ssid_len);
+
+		if (is_bgscan) {
+			static time64_t last_sec;
+			time64_t now = ktime_get_real_seconds();
+			int rssi = (int)priv->rssi;
+#define BG_SCAN_THRESH  (-60)
+#define BG_SCAN_INTERVAL 120
+
+			if (rssi > BG_SCAN_THRESH) {
+				esp_dbg("bgscan skipped: RSSI=%d > %d dBm\n",
+				        rssi, BG_SCAN_THRESH);
+				return -EBUSY;
+			}
+			if (now - last_sec < BG_SCAN_INTERVAL) {
+				esp_dbg("bgscan skipped: last %llds ago\n",
+				        now - last_sec);
+				return -EBUSY;
+			}
+			last_sec = now;
+			esp_info("bgscan allowed: RSSI=%d dBm\n", rssi);
+		}
+	}
+
 	return cmd_scan_request(priv, request);
 }
 
@@ -1261,7 +1298,7 @@ int esp_add_wiphy(struct esp_adapter *adapter)
 	wiphy->max_scan_ssids = 10;
 	/*	wiphy->max_match_sets = 10;*/
 	wiphy->max_scan_ie_len = 1000;
-	wiphy->max_sched_scan_ssids = 10;
+	wiphy->max_sched_scan_ssids = 0; /* driver has no sched_scan_start */
 	wiphy->signal_type = CFG80211_SIGNAL_TYPE_MBM;
 #ifdef CONFIG_PM
 	wiphy->wowlan = &esp_wowlan_support;

@@ -354,6 +354,7 @@ static void esp_spi_work(struct work_struct *work)
 		}
 
 		trans.tx_buf = tx_skb->data;
+		esp_hex_dump_verbose("TX: ", trans.tx_buf, 32);
 	} else {
 		tx_skb = esp_spi_alloc_skb(SPI_BUF_SIZE);
 		if (!tx_skb) {
@@ -392,8 +393,14 @@ static void esp_spi_work(struct work_struct *work)
 	} else {
 		esp_hex_dump_verbose("RX: ", rx_buf, 32);
 		/* Free rx_skb if received data is not valid */
-		if (process_rx_buf(rx_skb))
+		if (process_rx_buf(rx_skb)) {
+			/* Only log when ESP32 signaled data_ready but sent
+			 * nothing - indicates ESP32 firmware is busy/stalled
+			 */
+			if (rx_pending)
+				esp_err("ESP signaled data_ready but sent empty/invalid frame\n");
 			dev_kfree_skb(rx_skb);
+		}
 
 		dev_kfree_skb(tx_skb);
 	}
